@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 FIFA World Cup</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --white: #fff;
+      --blue: #1476fd;
+      --deep-blue: #0c2c58;
+      --glass: rgba(255, 255, 255, 0.42);
+      --font-sans: "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-display: "Arial Black", Impact, "PingFang SC", sans-serif;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      font-family: var(--font-sans);
+      background: #050b24;
+      color: var(--white);
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    .page {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      isolation: isolate;
+      background: #050b24;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background-image: var(--hero-bg-url);
+      background-position: calc(50% + 180px) top;
+      background-size: auto 130.08vw;
+      background-repeat: no-repeat;
+      opacity: 0;
+      transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity;
+      transform: translate3d(0, 0, 0);
+    }
+
+    .hero-bg.is-active {
+      opacity: 1;
+    }
+
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(90deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.58) 35%, rgba(0, 0, 0, 0) 74%);
+      pointer-events: none;
+    }
+
+    @media (min-aspect-ratio: 222 / 149) {
+      .hero-bg {
+        background-size: cover;
+      }
+    }
+
+    .shell {
+      width: min(100%, 1920px);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: clamp(26px, 4.4vw, 85px) clamp(24px, 5.6vw, 108px) clamp(28px, 2.7vw, 52px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: clamp(28px, 4vw, 80px);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .brand img {
+      width: clamp(118px, 9vw, 174px);
+      display: block;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: clamp(30px, 4vw, 72px);
+      font-size: clamp(13px, 1.1vw, 21px);
+    }
+
+    .nav a {
+      position: relative;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .nav a:first-child::before {
+      content: "";
+      position: absolute;
+      width: 56px;
+      height: 2px;
+      left: 50%;
+      top: calc(100% + 8px);
+      transform: translateX(-50%);
+      border-radius: 20px;
+      background: #fff;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(430px, 0.95fr) minmax(520px, 0.92fr);
+      align-items: center;
+      gap: clamp(34px, 5.5vw, 92px);
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      font-size: clamp(22px, 2vw, 39px);
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 800px;
+      font-family: var(--font-display);
+      font-size: clamp(68px, 6.2vw, 119px);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+    }
+
+    .team-picker {
+      margin-top: clamp(34px, 4.2vw, 76px);
+      max-width: 714px;
+    }
+
+    .picker-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 25px;
+    }
+
+    .picker-title {
+      font-size: clamp(17px, 1.4vw, 27px);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .more {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 6px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.33);
+      border-radius: 21px;
+      background: rgba(255, 255, 255, 0.33);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .more__arrow {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transform: translateY(-1px);
+    }
+
+    .teams {
+      display: flex;
+      align-items: center;
+      gap: clamp(10px, 1.1vw, 17px);
+      flex-wrap: wrap;
+    }
+
+    .team {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 67px;
+      height: 67px;
+      padding: 7px;
+      gap: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+      background: linear-gradient(102deg, var(--blue) 3.49%, var(--deep-blue) 26.62%, var(--deep-blue) 80.59%, var(--blue) 103.72%);
+      box-shadow: 1.403px 1.403px 2.034px rgba(255, 255, 255, 0.65) inset, 0 0 0 rgba(109, 126, 255, 0);
+      color: #fff;
+      cursor: pointer;
+      overflow: hidden;
+      transition:
+        width 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: width, transform;
+    }
+
+    .team:hover,
+    .team:focus-visible {
+      width: 209px;
+      box-shadow: 1.403px 1.403px 2.034px #fff inset, 0 0 18px rgba(109, 126, 255, 0.96);
+      transform: translate3d(0, -1px, 0);
+    }
+
+    .team img {
+      width: 52px;
+      height: 52px;
+      flex: 0 0 auto;
+      border: 1px solid #fff;
+      border-radius: 999px;
+      object-fit: cover;
+    }
+
+    .team span {
+      max-width: 0;
+      opacity: 0;
+      overflow: hidden;
+      color: #fff;
+      font-size: clamp(22px, 1.55vw, 30px);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: translate3d(-10px, 0, 0);
+      transition:
+        max-width 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.32s ease 0.08s,
+        transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .team:hover span,
+    .team:focus-visible span {
+      max-width: 130px;
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+
+    .team-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: clamp(24px, 4vw, 72px);
+      background: rgba(0, 0, 0, 0.48);
+      backdrop-filter: blur(21px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .team-modal.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .team-modal__panel {
+      position: relative;
+      width: min(1544px, 92vw);
+      height: min(819px, 82vh);
+      padding: clamp(28px, 2.4vw, 44px) clamp(38px, 3.2vw, 62px);
+      border: 5.13px solid rgba(255, 255, 255, 0.33);
+      border-radius: clamp(42px, 3.85vw, 74px);
+      background: rgba(255, 255, 255, 0.33);
+      box-shadow: 0 34px 120px rgba(0, 0, 0, 0.34), 3px 3px 8px rgba(255, 255, 255, 0.5) inset;
+      backdrop-filter: blur(30.05px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform: translate3d(0, 34px, 0) scale(0.94);
+      transition: transform 0.58s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+    }
+
+    .team-modal.is-open .team-modal__panel {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    .team-modal__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: clamp(16px, 1.6vw, 24px);
+      flex-shrink: 0;
+    }
+
+    .team-modal__title {
+      margin: 0;
+      color: #fff;
+      font-size: clamp(24px, 2.4vw, 46px);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .team-modal__close {
+      width: 54px;
+      height: 54px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.24);
+      color: #fff;
+      cursor: pointer;
+      font-size: 34px;
+      line-height: 1;
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .team-modal__close:hover,
+    .team-modal__close:focus-visible {
+      background: rgba(255, 255, 255, 0.36);
+      transform: rotate(90deg) scale(1.04);
+      outline: none;
+    }
+
+    .team-modal__grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-auto-rows: 67px;
+      gap: 20px 24px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 4px 2px 8px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .team-modal__grid .team {
+      width: 100%;
+      max-width: 100%;
+      box-shadow: 1.403px 1.403px 2.034px #fff inset, 0 0 13.746px rgba(109, 126, 255, 0.7);
+    }
+
+    .team-modal__grid .team span {
+      max-width: 160px;
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+    .poster-stage {
+      position: relative;
+      min-height: clamp(420px, 31.4vw, 602px);
+      perspective: 1400px;
+      touch-action: pan-y;
+      user-select: none;
+    }
+
+    .cards {
+      position: absolute;
+      inset: 0;
+      min-height: inherit;
+      transform-style: preserve-3d;
+    }
+
+    .card {
+      position: absolute;
+      left: 50%;
+      top: 2%;
+      width: 44.6%;
+      height: 94.5%;
+      overflow: hidden;
+      border-radius: 23px;
+      background: rgba(255, 255, 255, 0.5);
+      box-shadow: 3px 3px 4px #fff inset, 0 0 64.8px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(3px);
+      cursor: pointer;
+      transform: translate3d(-50%, 0, 0) scale(1);
+      transform-style: preserve-3d;
+      transition:
+        transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform, opacity, filter;
+      backface-visibility: hidden;
+      contain: layout paint;
+    }
+
+    .card video {
+      width: 100%;
+      height: 100%;
+      padding: 13px;
+      border-radius: inherit;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
+    }
+
+    .card video::-webkit-media-controls,
+    .card video::-webkit-media-controls-panel,
+    .card video::-webkit-media-controls-play-button,
+    .card video::-webkit-media-controls-start-playback-button,
+    .card video::-webkit-media-controls-overlay-play-button {
+      display: none !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      -webkit-appearance: none;
+    }
+
+    .card[data-position="left"] {
+      z-index: 1;
+      opacity: 0.75;
+      filter: blur(3px);
+      transform: translate3d(calc(-50% - clamp(160px, 14vw, 270px)), 0, 0) scale(0.82) rotateY(20deg);
+    }
+
+    .card[data-position="center"] {
+      z-index: 3;
+      opacity: 1;
+      filter: blur(0);
+      transform: translate3d(-50%, 0, 0) scale(1) rotateY(0deg);
+    }
+
+    .card[data-position="right"] {
+      z-index: 1;
+      opacity: 0.75;
+      filter: blur(3px);
+      transform: translate3d(calc(-50% + clamp(160px, 14vw, 270px)), 0, 0) scale(0.82) rotateY(-20deg);
+    }
+
+    .dots {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      z-index: 3;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .dots span {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.61);
+    }
+
+    .dots span.active {
+      width: 45px;
+    }
+
+    .begin-button {
+      position: relative;
+      margin-top: clamp(34px, 2.9vw, 55px);
+      width: min(380px, 78vw);
+      aspect-ratio: 380 / 92;
+      display: inline-flex;
+      padding: 0;
+      border: 0;
+      border-radius: clamp(26px, 3.2vw, 34px);
+      background: transparent;
+      cursor: pointer;
+      overflow: visible;
+      filter: drop-shadow(0 0 8px rgba(91, 222, 255, 0.2));
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform, filter;
+    }
+
+    .begin-button::before,
+    .begin-button::after {
+      content: "";
+      position: absolute;
+      inset: -12px;
+      z-index: -1;
+      border-radius: inherit;
+      background: linear-gradient(101deg, rgba(0, 116, 255, 0.38), rgba(130, 92, 255, 0.34), rgba(91, 222, 255, 0.3));
+      filter: blur(14px);
+      opacity: 0.18;
+      transform: scale(0.96);
+      transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+    }
+
+    .begin-button::after {
+      inset: -22px;
+      filter: blur(28px);
+      animation: beginGlow 1.8s ease-in-out infinite;
+      animation-play-state: paused;
+    }
+
+    .begin-button:hover,
+    .begin-button:focus-visible {
+      transform: translate3d(0, -1px, 0) scale(1.012);
+      filter: drop-shadow(0 0 10px rgba(91, 222, 255, 0.28));
+      outline: none;
+    }
+
+    .begin-button:hover::before,
+    .begin-button:hover::after,
+    .begin-button:focus-visible::before,
+    .begin-button:focus-visible::after {
+      opacity: 0.34;
+      transform: scale(1.02);
+      animation-play-state: running;
+    }
+
+    .begin-button img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: inherit;
+    }
+
+    @keyframes beginGlow {
+      0%, 100% {
+        opacity: 0.2;
+        transform: scale(1.005);
+      }
+      50% {
+        opacity: 0.34;
+        transform: scale(1.035);
+      }
+    }
+
+    .timeline {
+      position: relative;
+      padding-top: 4px;
+    }
+
+    .timeline-track {
+      position: relative;
+      height: 82px;
+      margin: 0 0 4px;
+    }
+
+    .timeline-track::before,
+    .timeline-track::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 36px;
+      height: 10px;
+      border-radius: 34px;
+    }
+
+    .timeline-track::before {
+      width: 100%;
+      background: #404571;
+    }
+
+    .timeline-track::after {
+      width: 51.1%;
+      background: linear-gradient(90deg, #142ffd 0%, #9977fd 50%, #77edfd 100%);
+      box-shadow: 1.403px 1.403px 2.034px #fff inset, 0 0 13.746px rgba(109, 126, 255, 0.93);
+    }
+
+    .milestone {
+      position: absolute;
+      top: 0;
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      background: url("images/football.png") center / cover no-repeat;
+      box-shadow: 0 4px 4px rgba(255, 255, 255, 0.25) inset, 0 0 25px 5px #2a54ff;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    .milestone:nth-child(1) {
+      left: 13.2%;
+    }
+
+    .milestone:nth-child(2) {
+      left: 51.1%;
+    }
+
+    .milestone:nth-child(3) {
+      left: 87.4%;
+      background-image: url("https://api.builder.io/api/v1/image/assets/TEMP/bef34534b85f4d462ba9d413426e6d7ef67a7108?width=132");
+      box-shadow: 0 4px 4px rgba(255, 255, 255, 0.25) inset;
+    }
+
+    .timeline-labels {
+      position: relative;
+      height: 98px;
+    }
+
+    .event {
+      position: absolute;
+      top: 0;
+      width: min(34vw, 430px);
+      min-height: 92px;
+      font-family: var(--font-display);
+      font-size: clamp(17px, 1.42vw, 27px);
+      line-height: 1.12;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .event:nth-child(1) {
+      left: 13.2%;
+      transform: translateX(-50%);
+    }
+
+    .event:nth-child(2) {
+      left: 51.1%;
+      transform: translateX(-50%);
+    }
+
+    .event:nth-child(3) {
+      left: 87.4%;
+      transform: translateX(-50%);
+    }
+
+    .event::after {
+      content: attr(data-date);
+      position: absolute;
+      left: 50%;
+      top: 44px;
+      min-width: 168px;
+      padding: 8px 22px;
+      border-radius: 34px;
+      background: linear-gradient(102deg, var(--blue) 3.49%, var(--deep-blue) 26.62%, var(--deep-blue) 80.59%, var(--blue) 103.72%);
+      box-shadow: 1.403px 1.403px 2.034px #fff inset, 0 0 13.746px rgba(109, 126, 255, 0.93);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+      transform: translateX(-50%);
+    }
+
+    .event:nth-child(3)::after {
+      background: rgba(255, 255, 255, 0.17);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: none;
+    }
+
+    @media (max-width: 1600px) {
+      .team-modal__grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 22px 24px;
+      }
+
+      .team-modal__grid .team {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 1180px) {
+      .shell {
+        gap: 36px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .poster-stage {
+        width: min(780px, 100%);
+        margin: 0 auto;
+      }
+
+      .begin-button {
+        margin-top: 26px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        padding: 24px 18px 28px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .nav {
+        gap: 14px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      h1 {
+        font-size: clamp(52px, 15vw, 82px);
+      }
+
+      .team:hover,
+      .team:focus-visible {
+        width: 178px;
+      }
+
+      .team-modal {
+        padding: 18px;
+      }
+
+      .team-modal__panel {
+        padding: 26px 18px;
+        border-width: 2px;
+      }
+
+      .team-modal__grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        max-height: calc(82vh - 120px);
+      }
+
+      .team-modal__grid .team {
+        width: 178px;
+      }
+
+      .poster-stage {
+        min-height: 440px;
+      }
+
+      .card {
+        width: 58%;
+        height: 90%;
+      }
+
+      .card[data-position="left"] {
+        transform: translate3d(calc(-50% - 34vw), 0, 0) scale(0.82) rotateY(20deg);
+      }
+
+      .card[data-position="right"] {
+        transform: translate3d(calc(-50% + 34vw), 0, 0) scale(0.82) rotateY(-20deg);
+      }
+
+      .timeline-labels {
+        height: auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .timeline-track,
+      .event::after {
+        display: none;
+      }
+
+      .event,
+      .event:nth-child(2),
+      .event:nth-child(3) {
+        position: relative;
+        left: auto;
+        top: auto;
+        width: auto;
+        transform: none;
+        text-align: left;
+      }
+
+      .event {
+        min-height: auto;
+        padding: 14px 16px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(8px);
+      }
+
+      .event span {
+        display: block;
+        margin-top: 6px;
+        font-family: var(--font-sans);
+        font-size: 14px;
+        font-weight: 600;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="hero-bg is-active" data-hero-bg style="--hero-bg-url: url('https://api.builder.io/api/v1/image/assets/TEMP/ee3db9299ee2a22a5b44182f535cf621929706a9?width=4574')"></div>
+    <div class="hero-bg" data-hero-bg></div>
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="World Cup home">
+          <img src="https://api.builder.io/api/v1/image/assets/TEMP/f25e48aa317a0774c7c3e0d37c98fd070ad4ac3c?width=348" alt="World Cup logo" />
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="#">navigation</a>
+          <a href="#">navigation</a>
+          <a href="#">navigation</a>
+        </nav>
+      </header>
+
+      <section class="hero" aria-label="World Cup campaign">
+        <div class="hero-copy">
+          <p class="eyebrow">2026 FIFA World Cup</p>
+          <h1>I'm here to<br />compete</h1>
+
+          <div class="team-picker" aria-label="Choose your home team">
+            <div class="picker-head">
+              <div class="picker-title">Choose your home team</div>
+              <button class="more" type="button" data-open-teams aria-haspopup="dialog" aria-controls="team-modal"><span>more</span><span class="more__arrow">›</span></button>
+            </div>
+            <div class="teams">
+              <button class="team active" type="button">
+                <img src="https://api.builder.io/api/v1/image/assets/TEMP/a3f493d469da65aa0681f2612943c6c87d9b4821?width=104" alt="Brazil" />
+                <span>Brazil</span>
+              </button>
+              <button class="team" type="button">
+                <img src="https://api.builder.io/api/v1/image/assets/TEMP/cc39a2622d0006f678ccc4a1ad550406bb685859?width=104" alt="Argentina" />
+                <span>Argentina</span>
+              </button>
+              <button class="team" type="button">
+                <img src="https://api.builder.io/api/v1/image/assets/TEMP/c5894aafb40388d91eaeb6cd59a32bef2139290d?width=104" alt="France" />
+                <span>France</span>
+              </button>
+              <button class="team" type="button">
+                <img src="https://api.builder.io/api/v1/image/assets/TEMP/3a00b8e59606b2a04b202f19cf5cb0d7f5fe486f?width=104" alt="Germany" />
+                <span>Germany</span>
+              </button>
+              <button class="team" type="button">
+                <img src="https://api.builder.io/api/v1/image/assets/TEMP/ed2f18b24e6532df5520fac2c3bc4f3f4ea1c945?width=104" alt="Spain" />
+                <span>Spain</span>
+              </button>
+              <button class="team" type="button">
+                <img src="https://api.builder.io/api/v1/image/assets/TEMP/e1c4c4deabfa84dc22ab2385c1949431bcfd4f70?width=104" alt="Portugal" />
+                <span>Portugal</span>
+              </button>
+              <button class="team" type="button">
+                <img src="https://api.builder.io/api/v1/image/assets/TEMP/e6f98bc3a56c640ab9d46fb0ff85b9cbf5d22d4d?width=104" alt="England" />
+                <span>England</span>
+              </button>
+            </div>
+          </div>
+
+          <button class="begin-button" type="button" aria-label="Let's go">
+            <img src="https://api.builder.io/api/v1/image/assets/TEMP/c9d9f227762da5dcffe12a0daec373f7a58a503b?width=760" alt="Let's go" />
+          </button>
+        </div>
+
+        <div class="poster-stage" aria-label="Featured players carousel">
+          <div class="cards">
+            <div class="card" data-card data-position="left" tabindex="0" role="button" aria-label="Play previous video">
+              <video src="videos/video-1.mp4" muted playsinline preload="metadata"></video>
+            </div>
+            <div class="card" data-card data-position="center" tabindex="0" role="button" aria-label="Current video">
+              <video src="videos/video-2.mp4" muted playsinline preload="metadata"></video>
+            </div>
+            <div class="card" data-card data-position="right" tabindex="0" role="button" aria-label="Play next video">
+              <video src="videos/video-3.mp4" muted playsinline preload="metadata"></video>
+            </div>
+          </div>
+          <div class="dots" aria-hidden="true"><span></span><span class="active"></span><span></span></div>
+        </div>
+      </section>
+
+      <section class="timeline" aria-label="Tournament timeline">
+        <div class="timeline-track" aria-hidden="true">
+          <span class="milestone"></span>
+          <span class="milestone"></span>
+          <span class="milestone"></span>
+        </div>
+        <div class="timeline-labels">
+          <div class="event" data-date="June 12th">Passionately engage in battle<span>June 12th</span></div>
+          <div class="event" data-date="July 9th">peak duel<span>July 9th</span></div>
+          <div class="event" data-date="August 3rd">The moment of sealing the gods<span>August 3rd</span></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="team-modal" id="team-modal" data-team-modal aria-hidden="true">
+      <div class="team-modal__panel" role="dialog" aria-modal="true" aria-labelledby="team-modal-title">
+        <div class="team-modal__top">
+          <h2 class="team-modal__title" id="team-modal-title">Choose more teams</h2>
+          <button class="team-modal__close" type="button" data-close-teams aria-label="Close teams modal">×</button>
+        </div>
+        <div class="team-modal__grid">
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/a3f493d469da65aa0681f2612943c6c87d9b4821?width=104" alt="Brazil" /><span>Brazil</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/cc39a2622d0006f678ccc4a1ad550406bb685859?width=104" alt="Argentina" /><span>Argentina</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/c5894aafb40388d91eaeb6cd59a32bef2139290d?width=104" alt="France" /><span>France</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/3a00b8e59606b2a04b202f19cf5cb0d7f5fe486f?width=104" alt="Germany" /><span>Germany</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/ed2f18b24e6532df5520fac2c3bc4f3f4ea1c945?width=104" alt="Spain" /><span>Spain</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/e1c4c4deabfa84dc22ab2385c1949431bcfd4f70?width=104" alt="Portugal" /><span>Portugal</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/e6f98bc3a56c640ab9d46fb0ff85b9cbf5d22d4d?width=104" alt="England" /><span>England</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/64ca514c1d1b30344fb4260e4675ed5bd6a1ab14?width=104" alt="Netherlands" /><span>Netherlands</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/2bea6bed604b4a0f4e5f21aeee8954531eb2b332?width=104" alt="Italy" /><span>Italy</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/a3f493d469da65aa0681f2612943c6c87d9b4821?width=104" alt="Uruguay" /><span>Uruguay</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/cc39a2622d0006f678ccc4a1ad550406bb685859?width=104" alt="Belgium" /><span>Belgium</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/c5894aafb40388d91eaeb6cd59a32bef2139290d?width=104" alt="Croatia" /><span>Croatia</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/3a00b8e59606b2a04b202f19cf5cb0d7f5fe486f?width=104" alt="Mexico" /><span>Mexico</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/ed2f18b24e6532df5520fac2c3bc4f3f4ea1c945?width=104" alt="USA" /><span>USA</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/e1c4c4deabfa84dc22ab2385c1949431bcfd4f70?width=104" alt="Canada" /><span>Canada</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/e6f98bc3a56c640ab9d46fb0ff85b9cbf5d22d4d?width=104" alt="Japan" /><span>Japan</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/64ca514c1d1b30344fb4260e4675ed5bd6a1ab14?width=104" alt="Korea" /><span>Korea</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/2bea6bed604b4a0f4e5f21aeee8954531eb2b332?width=104" alt="Morocco" /><span>Morocco</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/a3f493d469da65aa0681f2612943c6c87d9b4821?width=104" alt="Senegal" /><span>Senegal</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/cc39a2622d0006f678ccc4a1ad550406bb685859?width=104" alt="Ghana" /><span>Ghana</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/c5894aafb40388d91eaeb6cd59a32bef2139290d?width=104" alt="Nigeria" /><span>Nigeria</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/3a00b8e59606b2a04b202f19cf5cb0d7f5fe486f?width=104" alt="Cameroon" /><span>Cameroon</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/ed2f18b24e6532df5520fac2c3bc4f3f4ea1c945?width=104" alt="Egypt" /><span>Egypt</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/e1c4c4deabfa84dc22ab2385c1949431bcfd4f70?width=104" alt="Australia" /><span>Australia</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/e6f98bc3a56c640ab9d46fb0ff85b9cbf5d22d4d?width=104" alt="Denmark" /><span>Denmark</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/64ca514c1d1b30344fb4260e4675ed5bd6a1ab14?width=104" alt="Switzerland" /><span>Switzerland</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/2bea6bed604b4a0f4e5f21aeee8954531eb2b332?width=104" alt="Sweden" /><span>Sweden</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/a3f493d469da65aa0681f2612943c6c87d9b4821?width=104" alt="Norway" /><span>Norway</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/cc39a2622d0006f678ccc4a1ad550406bb685859?width=104" alt="Poland" /><span>Poland</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/c5894aafb40388d91eaeb6cd59a32bef2139290d?width=104" alt="Serbia" /><span>Serbia</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/3a00b8e59606b2a04b202f19cf5cb0d7f5fe486f?width=104" alt="Wales" /><span>Wales</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/ed2f18b24e6532df5520fac2c3bc4f3f4ea1c945?width=104" alt="Scotland" /><span>Scotland</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/e1c4c4deabfa84dc22ab2385c1949431bcfd4f70?width=104" alt="Colombia" /><span>Colombia</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/e6f98bc3a56c640ab9d46fb0ff85b9cbf5d22d4d?width=104" alt="Chile" /><span>Chile</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/64ca514c1d1b30344fb4260e4675ed5bd6a1ab14?width=104" alt="Peru" /><span>Peru</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/2bea6bed604b4a0f4e5f21aeee8954531eb2b332?width=104" alt="Ecuador" /><span>Ecuador</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/a3f493d469da65aa0681f2612943c6c87d9b4821?width=104" alt="Paraguay" /><span>Paraguay</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/cc39a2622d0006f678ccc4a1ad550406bb685859?width=104" alt="Costa Rica" /><span>Costa Rica</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/c5894aafb40388d91eaeb6cd59a32bef2139290d?width=104" alt="Qatar" /><span>Qatar</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/3a00b8e59606b2a04b202f19cf5cb0d7f5fe486f?width=104" alt="Saudi Arabia" /><span>Saudi Arabia</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/ed2f18b24e6532df5520fac2c3bc4f3f4ea1c945?width=104" alt="Iran" /><span>Iran</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/e1c4c4deabfa84dc22ab2385c1949431bcfd4f70?width=104" alt="Turkey" /><span>Turkey</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/e6f98bc3a56c640ab9d46fb0ff85b9cbf5d22d4d?width=104" alt="Greece" /><span>Greece</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/64ca514c1d1b30344fb4260e4675ed5bd6a1ab14?width=104" alt="Czechia" /><span>Czechia</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/2bea6bed604b4a0f4e5f21aeee8954531eb2b332?width=104" alt="Austria" /><span>Austria</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/a3f493d469da65aa0681f2612943c6c87d9b4821?width=104" alt="Ukraine" /><span>Ukraine</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/cc39a2622d0006f678ccc4a1ad550406bb685859?width=104" alt="Ireland" /><span>Ireland</span></button>
+          <button class="team" type="button"><img src="https://api.builder.io/api/v1/image/assets/TEMP/c5894aafb40388d91eaeb6cd59a32bef2139290d?width=104" alt="Iceland" /><span>Iceland</span></button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>
+    const stage = document.querySelector(".poster-stage");
+    const cards = Array.from(document.querySelectorAll("[data-card]"));
+    const dots = Array.from(document.querySelectorAll(".dots span"));
+    const openTeamsButton = document.querySelector("[data-open-teams]");
+    const teamsModal = document.querySelector("[data-team-modal]");
+    const closeTeamsButton = document.querySelector("[data-close-teams]");
+    const heroBackgrounds = Array.from(document.querySelectorAll("[data-hero-bg]"));
+    const fallbackHeroBackground = "https://api.builder.io/api/v1/image/assets/TEMP/ee3db9299ee2a22a5b44182f535cf621929706a9?width=4574";
+    const heroBackgroundSources = [
+      ["images/image-1.jpg", "images/image-1.png", "images/image-1.webp", fallbackHeroBackground],
+      ["images/image-2.jpg", "images/image-2.png", "images/image-2.webp", fallbackHeroBackground],
+      ["images/image-3.jpg", "images/image-3.png", "images/image-3.webp", fallbackHeroBackground],
+    ];
+    let activeBackgroundLayer = 0;
+    const slotOrder = ["left", "center", "right"];
+    let activeIndex = cards.findIndex((card) => card.dataset.position === "center");
+    let isAnimating = false;
+    let dragStartX = 0;
+    let dragDeltaX = 0;
+    let dragStartCard = null;
+
+    function openTeamsModal() {
+      teamsModal.classList.add("is-open");
+      teamsModal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      closeTeamsButton.focus();
+    }
+
+    function closeTeamsModal() {
+      teamsModal.classList.remove("is-open");
+      teamsModal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      openTeamsButton.focus();
+    }
+
+    openTeamsButton.addEventListener("click", openTeamsModal);
+    closeTeamsButton.addEventListener("click", closeTeamsModal);
+    teamsModal.addEventListener("click", (event) => {
+      if (event.target === teamsModal) closeTeamsModal();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && teamsModal.classList.contains("is-open")) {
+        closeTeamsModal();
+      }
+    });
+
+    function prepareVideo(video) {
+      video.controls = false;
+      video.muted = true;
+      video.playsInline = true;
+      video.setAttribute("muted", "");
+      video.setAttribute("playsinline", "");
+      video.removeAttribute("controls");
+    }
+
+    function resolveHeroBackground(index) {
+      const candidates = heroBackgroundSources[index] || heroBackgroundSources[0];
+      return new Promise((resolve) => {
+        let candidateIndex = 0;
+
+        function tryNext() {
+          const source = candidates[candidateIndex];
+          if (!source) {
+            resolve(fallbackHeroBackground);
+            return;
+          }
+
+          const image = new Image();
+          image.onload = () => resolve(source);
+          image.onerror = () => {
+            candidateIndex += 1;
+            tryNext();
+          };
+          image.src = source;
+        }
+
+        tryNext();
+      });
+    }
+
+    async function updateHeroBackground(index) {
+      const source = await resolveHeroBackground(index);
+      const nextLayerIndex = 1 - activeBackgroundLayer;
+      const currentLayer = heroBackgrounds[activeBackgroundLayer];
+      const nextLayer = heroBackgrounds[nextLayerIndex];
+
+      if (!nextLayer || currentLayer?.style.getPropertyValue("--hero-bg-url") === `url('${source}')`) return;
+
+      nextLayer.style.setProperty("--hero-bg-url", `url('${source}')`);
+      nextLayer.classList.add("is-active");
+      currentLayer?.classList.remove("is-active");
+      activeBackgroundLayer = nextLayerIndex;
+    }
+
+    function resetVideo(video) {
+      video.pause();
+      try {
+        video.currentTime = 0;
+      } catch (error) {
+        video.addEventListener("loadedmetadata", () => {
+          video.currentTime = 0;
+        }, { once: true });
+      }
+    }
+
+    function playActiveVideo() {
+      cards.forEach((card, index) => {
+        const video = card.querySelector("video");
+        prepareVideo(video);
+
+        if (index === activeIndex) {
+          video.currentTime = 0;
+          video.play().catch(() => undefined);
+        } else {
+          resetVideo(video);
+        }
+      });
+    }
+
+    function applyPositions(shouldPlay = true) {
+      cards.forEach((card, index) => {
+        const relativeIndex = (index - activeIndex + cards.length) % cards.length;
+        const position = relativeIndex === 0 ? "center" : relativeIndex === 1 ? "right" : "left";
+        card.dataset.position = position;
+        card.setAttribute("aria-label", position === "center" ? "Current video" : `Play ${position} video`);
+      });
+
+      dots.forEach((dot, index) => {
+        dot.classList.toggle("active", index === activeIndex);
+      });
+
+      updateHeroBackground(activeIndex);
+
+      if (shouldPlay) {
+        window.requestAnimationFrame(() => playActiveVideo());
+      }
+    }
+
+    function goToVideo(nextIndex) {
+      if (isAnimating || nextIndex === activeIndex) return;
+      isAnimating = true;
+      activeIndex = (nextIndex + cards.length) % cards.length;
+      applyPositions(false);
+
+      window.setTimeout(() => {
+        isAnimating = false;
+        playActiveVideo();
+      }, 820);
+    }
+
+    function goNext() {
+      goToVideo(activeIndex + 1);
+    }
+
+    function goPrevious() {
+      goToVideo(activeIndex - 1);
+    }
+
+    cards.forEach((card, index) => {
+      const video = card.querySelector("video");
+      prepareVideo(video);
+      video.addEventListener("ended", () => {
+        if (index === activeIndex) goNext();
+      });
+
+      card.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          goToVideo(index);
+        }
+      });
+    });
+
+    stage.addEventListener("pointerdown", (event) => {
+      dragStartX = event.clientX;
+      dragDeltaX = 0;
+      dragStartCard = event.target.closest("[data-card]");
+      stage.setPointerCapture(event.pointerId);
+    });
+
+    stage.addEventListener("pointermove", (event) => {
+      if (!dragStartX) return;
+      dragDeltaX = event.clientX - dragStartX;
+    });
+
+    stage.addEventListener("pointerup", (event) => {
+      stage.releasePointerCapture(event.pointerId);
+      const isDragging = Math.abs(dragDeltaX) > 56;
+
+      if (isDragging) {
+        dragDeltaX < 0 ? goNext() : goPrevious();
+      } else {
+        const elementAtPoint = document.elementFromPoint(event.clientX, event.clientY);
+        const targetCard = elementAtPoint?.closest("[data-card]") || dragStartCard;
+        if (targetCard) {
+          const targetIndex = cards.indexOf(targetCard);
+          targetIndex === activeIndex ? playActiveVideo() : goToVideo(targetIndex);
+        }
+      }
+
+      dragStartX = 0;
+      dragDeltaX = 0;
+      dragStartCard = null;
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        cards[activeIndex].querySelector("video").pause();
+      } else {
+        playActiveVideo();
+      }
+    });
+
+    applyPositions(true);
+  </script>
+</body>
+</html>
